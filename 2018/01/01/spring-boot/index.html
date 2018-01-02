@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="java,spring," />
 
 
 
@@ -82,6 +82,7 @@
 
 
 <meta name="description" content="spring boot 配置静态资源简介 spring boot是一个适合进行快速开发的框架，spring boot奉行“习惯优于配置”的原则，其目的是为了简化应用的初始搭建。使用java配置替代xml配置，并且内嵌了Tomcat容器，应用可以直接以jar包的形式运行。  那么这里问题就来了：因为内嵌Tomcat，应用以java -jar的形式启动以后，假如有这样的场景，用户需要自定义头像，那么就">
+<meta name="keywords" content="java,spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="spring boot配置静态资源">
 <meta property="og:url" content="http://ash1daMANA.github.io/2018/01/01/spring-boot/index.html">
@@ -92,7 +93,7 @@
 <meta property="og:image" content="https://s1.ax1x.com/2018/01/02/ppVMrD.jpg">
 <meta property="og:image" content="https://s1.ax1x.com/2018/01/02/ppV1VH.jpg">
 <meta property="og:image" content="https://s1.ax1x.com/2018/01/02/ppV3ad.jpg">
-<meta property="og:updated_time" content="2018-01-01T16:50:10.787Z">
+<meta property="og:updated_time" content="2018-01-02T01:41:24.167Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring boot配置静态资源">
 <meta name="twitter:description" content="spring boot 配置静态资源简介 spring boot是一个适合进行快速开发的框架，spring boot奉行“习惯优于配置”的原则，其目的是为了简化应用的初始搭建。使用java配置替代xml配置，并且内嵌了Tomcat容器，应用可以直接以jar包的形式运行。  那么这里问题就来了：因为内嵌Tomcat，应用以java -jar的形式启动以后，假如有这样的场景，用户需要自定义头像，那么就">
@@ -167,7 +168,7 @@
       </a>
     </div>
       
-        <p class="site-subtitle">無限大な夢のあとの</p>
+        <p class="site-subtitle">喜欢的话就坚持吧。</p>
       
   </div>
 
@@ -321,8 +322,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/spring/" itemprop="url" rel="index">
-                    <span itemprop="name">spring</span>
+                  <a href="/categories/springboot/" itemprop="url" rel="index">
+                    <span itemprop="name">springboot</span>
                   </a>
                 </span>
 
@@ -362,6 +363,7 @@
 <p><strong>spring boot</strong>是一个适合进行快速开发的框架，<strong>spring boot</strong>奉行“习惯优于配置”的原则，其目的是为了简化应用的初始搭建。使用<br>java配置替代xml配置，并且内嵌了Tomcat容器，应用可以直接以jar包的形式运行。</p>
 </blockquote>
 <h2 id=""><a href="#" class="headerlink" title=""></a><br></h2><p>那么这里问题就来了：因为内嵌Tomcat，应用以java -jar的形式启动以后，假如有这样的场景，用户需要自定义头像，那么就需要上传图片，这个图片保存在哪呢？的确，应用中<strong>static</strong>文件夹会存放一些如logo.ico、jQuery.js这类的静态资源。那么用户自定义的图片也存放在这不合适吧。当然有小伙伴会想到把图片序列化成二进制数据保存到数据库中，这种方法也是可行的，但这样IO成本会增大；还有一种方法就是保存在服务器的本地文件夹中，由应用来读取本地的静态资源。</p>
+<a id="more"></a>
 <h3 id="spring-boot配置"><a href="#spring-boot配置" class="headerlink" title="spring boot配置"></a>spring boot配置</h3><blockquote>
 <p>application.properties</p>
 </blockquote>
@@ -413,6 +415,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/spring/" rel="tag"># spring</a>
+          
+        </div>
+      
 
       
       
@@ -422,8 +432,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/11/21/linux/" rel="next" title="linux">
-                <i class="fa fa-chevron-left"></i> linux
+              <a href="/2017/11/21/maven/" rel="next" title="maven">
+                <i class="fa fa-chevron-left"></i> maven
               </a>
             
           </div>
@@ -522,7 +532,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -533,7 +543,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

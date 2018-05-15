@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="消息中间件," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="啦啦啦拉比克" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="Kafka（二）概述kafka是一种分布式、高吞吐量的消息中间件，通过磁盘数据结构来提供消息的持久化。本文主要记录使用java操作kafka生产者与消费者。 kafka示例使用spring boot作为基础，便于快速构建一个spring项目，版本为1.5.9.RELEASE。此版本的spring boot支持自动配置kafka，application.properties中使用前缀为spring">
+<meta name="keywords" content="消息中间件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kafka（二）">
+<meta property="og:url" content="http://ash1daMANA.github.io/2018/05/16/Kafka（二）/index.html">
+<meta property="og:site_name" content="啦啦啦拉比克">
+<meta property="og:description" content="Kafka（二）概述kafka是一种分布式、高吞吐量的消息中间件，通过磁盘数据结构来提供消息的持久化。本文主要记录使用java操作kafka生产者与消费者。 kafka示例使用spring boot作为基础，便于快速构建一个spring项目，版本为1.5.9.RELEASE。此版本的spring boot支持自动配置kafka，application.properties中使用前缀为spring">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-15T16:13:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="kafka（二）">
+<meta name="twitter:description" content="Kafka（二）概述kafka是一种分布式、高吞吐量的消息中间件，通过磁盘数据结构来提供消息的持久化。本文主要记录使用java操作kafka生产者与消费者。 kafka示例使用spring boot作为基础，便于快速构建一个spring项目，版本为1.5.9.RELEASE。此版本的spring boot支持自动配置kafka，application.properties中使用前缀为spring">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://ash1daMANA.github.io/2018/05/16/Kafka（二）/"/>
+
+
+
+
+
+  <title>kafka（二） | 啦啦啦拉比克</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">啦啦啦拉比克</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">喜欢的话就坚持吧。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ash1daMANA.github.io/2018/05/16/Kafka（二）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="taoyong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/mana.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="啦啦啦拉比克">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">kafka（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-16T00:02:55+08:00">
+                2018-05-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/消息中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">消息中间件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h1 id="Kafka（二）"><a href="#Kafka（二）" class="headerlink" title="Kafka（二）"></a>Kafka（二）</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>kafka是一种分布式、高吞吐量的消息中间件，通过磁盘数据结构来提供消息的持久化。<br>本文主要记录使用java操作kafka生产者与消费者。</p>
+<h2 id="kafka"><a href="#kafka" class="headerlink" title="kafka"></a>kafka</h2><p>示例使用spring boot作为基础，便于快速构建一个spring项目，版本为<strong>1.5.9.RELEASE</strong>。<br>此版本的spring boot支持自动配置kafka，application.properties中使用前缀为<strong>spring.kafka.* </strong>的属性，不过本文中没有使用。<br>kafka安装的版本是kafka_2.11-0.11.0.2.tgz<br>在pom.xml中添加以下依赖<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--spring与kafka整合--&gt;</span><br><span class="line">      &lt;!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka --&gt;</span><br><span class="line">      &lt;dependency&gt;</span><br><span class="line">          &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;</span><br><span class="line">          &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;</span><br><span class="line">          &lt;version&gt;1.1.7.RELEASE&lt;/version&gt;</span><br><span class="line">      &lt;/dependency&gt;</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h4 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h4><p>spring-kafka提供了kafkaTemplate来方便的发送数据到kafka的topic，所以这里使用kafkaTemplate。<br><br><br>配置生产者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.producer.ProducerConfig;</span><br><span class="line">import org.apache.kafka.common.serialization.StringSerializer;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.kafka.annotation.EnableKafka;</span><br><span class="line">import org.springframework.kafka.core.DefaultKafkaProducerFactory;</span><br><span class="line">import org.springframework.kafka.core.KafkaTemplate;</span><br><span class="line">import org.springframework.kafka.core.ProducerFactory;</span><br><span class="line"></span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/15</span><br><span class="line"> * @time 22:43</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Configuration</span><br><span class="line">@EnableKafka </span><br><span class="line">public class KafkaProducerConfig &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public ProducerFactory&lt;String, String&gt; defaultKafkaProducerFactory() &#123;</span><br><span class="line">        Map&lt;String, Object&gt; props = new HashMap&lt;String, Object&gt;();</span><br><span class="line">        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, &quot;200.100.49.249:9092&quot;);//kafka集群servers</span><br><span class="line">        props.put(ProducerConfig.RETRIES_CONFIG, &quot;0&quot;);//此项参数将使producer自动重试失败的发送请求</span><br><span class="line">        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, &quot;6000&quot;);</span><br><span class="line">        props.put(ProducerConfig.ACKS_CONFIG, &quot;all&quot;);//可取得值有 0,1,2，all</span><br><span class="line">        props.put(ProducerConfig.BATCH_SIZE_CONFIG, &quot;16384&quot;);//批量处理消息字节数</span><br><span class="line">        props.put(ProducerConfig.LINGER_MS_CONFIG, Integer.valueOf(1));</span><br><span class="line">        props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, &quot;33554432&quot;);//请求的最大字节数</span><br><span class="line">        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, &quot;33554432&quot;);//缓存的字节数</span><br><span class="line">        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span><br><span class="line">        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span><br><span class="line">        return new DefaultKafkaProducerFactory&lt;String, String&gt;(props);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line">    @Bean</span><br><span class="line">    public KafkaTemplate&lt;String, String&gt; kafkaTemplate(ProducerFactory&lt;String,String&gt; defaultKafkaProducerFactory)&#123;</span><br><span class="line">        return new KafkaTemplate&lt;String,String&gt;(defaultKafkaProducerFactory);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面就可以注入kafkaTemplate，来发送消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.commons.logging.LogFactory;</span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.kafka.core.KafkaTemplate;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.Arrays;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 13:32</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">public class KafkaUtil &#123;</span><br><span class="line">    private Logger logger = LoggerFactory.getLogger(KafkaUtil.class);</span><br><span class="line"></span><br><span class="line">    //注入kafka发送消息的模板</span><br><span class="line">    @Autowired</span><br><span class="line">    private KafkaTemplate&lt;String,String&gt; kafkaTemplate;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     *</span><br><span class="line">     * @param queue kafka的topic</span><br><span class="line">     * @param message 发送的消息 ,可以由对象转成json string</span><br><span class="line">     */</span><br><span class="line">    public void sendMessage(String topic,String message)&#123;</span><br><span class="line">        long begin=System.currentTimeMillis();</span><br><span class="line">        this.kafkaTemplate.send(topic, message); //调用模板的发送消息的方法</span><br><span class="line">        logger.info(&quot;send a message to [topic:&#123;&#125;] , cost time [&#123;&#125;]ms&quot;,topic,System.currentTimeMillis()-begin);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里做了一层封装，也可以直接调用kafkaTemplate的send方法。</p>
+<p><br></p>
+<h4 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h4><p>（一）使用@KafkaListener来消费指定topic的消息<br><br></p>
+<p>消费者配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerConfig;</span><br><span class="line">import org.apache.kafka.common.serialization.StringDeserializer;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.kafka.annotation.EnableKafka;</span><br><span class="line">import org.springframework.kafka.core.ConsumerFactory;</span><br><span class="line">import org.springframework.kafka.core.DefaultKafkaConsumerFactory;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 12:37</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Configuration  </span><br><span class="line">@EnableKafka  </span><br><span class="line">public class KafkaConsumerConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public ConsumerFactory consumerFactory()&#123;</span><br><span class="line">        Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span><br><span class="line">        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,&quot;200.100.49.249:9092&quot;);//kafka集群servers </span><br><span class="line">        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;true&quot;);</span><br><span class="line">        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, &quot;100&quot;);//consumer向zookeeper提交offset的频率</span><br><span class="line">        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, &quot;15000&quot;);//zookeeper会话超时时间。</span><br><span class="line">        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);//key的反序列化</span><br><span class="line">        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);//value反序列化</span><br><span class="line">        props.put(ConsumerConfig.GROUP_ID_CONFIG, &quot;frms&quot;); //用于标识consumer属于哪个consumer group</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, &quot;10240&quot;);//备份时每次fetch的最大值</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, &quot;6000&quot;);//fetch 超时时间</span><br><span class="line">        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);</span><br><span class="line">        return new DefaultKafkaConsumerFactory&lt;String, String&gt;(props);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>kafkaListener<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.springframework.kafka.annotation.KafkaListener;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 17:00</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">public class Listener &#123;</span><br><span class="line"></span><br><span class="line">    @KafkaListener(topics = &#123;&quot;testtt&quot;,&quot;topicName&quot;,&quot;testt&quot;&#125;)</span><br><span class="line">    public void listen(String message) &#123;</span><br><span class="line">        System.out.println(message); </span><br><span class="line">       /**</span><br><span class="line">        ** 业务逻辑</span><br><span class="line">        **/</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>需要注意的是<br>在KafkaAnnotationDrivenConfiguration这个类中，有如下方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Bean</span><br><span class="line">@ConditionalOnMissingBean(</span><br><span class="line">    name = &#123;&quot;kafkaListenerContainerFactory&quot;&#125;</span><br><span class="line">)</span><br><span class="line">public ConcurrentKafkaListenerContainerFactory&lt;?, ?&gt; kafkaListenerContainerFactory(ConcurrentKafkaListenerContainerFactoryConfigurer configurer, ConsumerFactory&lt;Object, Object&gt; kafkaConsumerFactory) &#123;</span><br><span class="line">    ConcurrentKafkaListenerContainerFactory factory = new ConcurrentKafkaListenerContainerFactory();</span><br><span class="line">    configurer.configure(factory, kafkaConsumerFactory);</span><br><span class="line">    return factory;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当我们没有显示的定义一个名字为kafkaListenerContainerFactory的bean时，<br>通过ConcurrentKafkaListenerContainerFactoryConfigurer使用自定义的ConsumerFactory以及一些默认的配置来创建一个ConcurrentKafkaListenerContainerFactory，因为spring boot 1.5.9 已经支持kafka的自动配置。<br>当不支持自动配置，我们也可以自定义 KafkaListenerContainerFactory，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerConfig;</span><br><span class="line">import org.apache.kafka.common.serialization.StringDeserializer;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.kafka.annotation.EnableKafka;</span><br><span class="line">import org.springframework.kafka.core.ConsumerFactory;</span><br><span class="line">import org.springframework.kafka.core.DefaultKafkaConsumerFactory;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line">import org.springframework.kafka.config.KafkaListenerContainerFactory;</span><br><span class="line">import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;</span><br><span class="line">import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 12:37</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Configuration  </span><br><span class="line">@EnableKafka  </span><br><span class="line">public class KafkaConsumerConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public ConsumerFactory consumerFactory()&#123;</span><br><span class="line">        Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span><br><span class="line">        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,&quot;200.100.49.249:9092&quot;);//kafka集群servers </span><br><span class="line">        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;true&quot;);</span><br><span class="line">        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, &quot;100&quot;);//consumer向zookeeper提交offset的频率</span><br><span class="line">        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, &quot;15000&quot;);//zookeeper会话超时时间。</span><br><span class="line">        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);//key的反序列化</span><br><span class="line">        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);//value反序列化</span><br><span class="line">        props.put(ConsumerConfig.GROUP_ID_CONFIG, &quot;frms&quot;); //用于标识consumer属于哪个consumer group</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, &quot;10240&quot;);//备份时每次fetch的最大值</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, &quot;6000&quot;);//fetch 超时时间</span><br><span class="line">        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);</span><br><span class="line">        return new DefaultKafkaConsumerFactory&lt;String, String&gt;(props);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public KafkaListenerContainerFactory&lt;ConcurrentMessageListenerContainer&lt;String, String&gt;&gt; kafkaListenerContainerFactory(ConsumerFactory&lt;String,String&gt; consumerFactory)&#123;</span><br><span class="line">        ConcurrentKafkaListenerContainerFactory&lt;String, String&gt; factory = new ConcurrentKafkaListenerContainerFactory();</span><br><span class="line">        factory.setConsumerFactory(consumerFactory);</span><br><span class="line">        //factory.setConcurrency(4);</span><br><span class="line">        factory.setBatchListener(Boolean.valueOf(true));</span><br><span class="line">        return factory;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>kafkaListener还是跟前面一样。</p>
+<p><br><br>（二）使用自定义的KafkaMessageListenerContainer来消费指定topic的消息<br><br><br>消费者配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerConfig;</span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerRecord;</span><br><span class="line">import org.apache.kafka.common.serialization.StringDeserializer;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.kafka.annotation.EnableKafka;</span><br><span class="line">import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;</span><br><span class="line">import org.springframework.kafka.config.KafkaListenerContainerFactory;</span><br><span class="line">import org.springframework.kafka.core.ConsumerFactory;</span><br><span class="line">import org.springframework.kafka.core.DefaultKafkaConsumerFactory;</span><br><span class="line">import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;</span><br><span class="line">import org.springframework.kafka.listener.KafkaMessageListenerContainer;</span><br><span class="line">import org.springframework.kafka.listener.MessageListener;</span><br><span class="line">import org.springframework.kafka.listener.config.ContainerProperties;</span><br><span class="line"></span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.List;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 12:37</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Configuration  </span><br><span class="line">@EnableKafka  </span><br><span class="line">public class KafkaConsumerConfig &#123;</span><br><span class="line"></span><br><span class="line">    private Integer kafka_listener_concurrency=2;</span><br><span class="line"></span><br><span class="line">    private Integer kafka_listener_pollTimeout=1000;//超时</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public ConsumerFactory&lt;String,String&gt; consumerFactory()&#123;</span><br><span class="line">        Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span><br><span class="line">        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,&quot;200.100.49.249:9092&quot;);//kafka集群servers </span><br><span class="line">        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;true&quot;);</span><br><span class="line">        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, &quot;100&quot;);//consumer向zookeeper提交offset的频率</span><br><span class="line">        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, &quot;15000&quot;);//zookeeper会话超时时间。</span><br><span class="line">        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);//key的反序列化</span><br><span class="line">        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);//value反序列化</span><br><span class="line">        props.put(ConsumerConfig.GROUP_ID_CONFIG, &quot;frms&quot;); //用于标识consumer属于哪个consumer group</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, &quot;10240&quot;);//备份时每次fetch的最大值</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, &quot;6000&quot;);//fetch 超时时间</span><br><span class="line">        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);</span><br><span class="line">        return new DefaultKafkaConsumerFactory&lt;String, String&gt;(props);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public KafkaListenerContainerFactory&lt;ConcurrentMessageListenerContainer&lt;String, String&gt;&gt; kafkaListenerContainerFactory(ConsumerFactory&lt;String,String&gt; consumerFactory)&#123;</span><br><span class="line">        ConcurrentKafkaListenerContainerFactory&lt;String, String&gt; factory = new ConcurrentKafkaListenerContainerFactory();</span><br><span class="line">        factory.setConsumerFactory(consumerFactory);</span><br><span class="line">        factory.setConcurrency(this.kafka_listener_concurrency);</span><br><span class="line">        factory.getContainerProperties().setPollTimeout(this.kafka_listener_pollTimeout.intValue());</span><br><span class="line">        factory.setBatchListener(Boolean.valueOf(true));</span><br><span class="line">        return factory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public KafkaMessageListenerContainer kafkaMessageListenerContainer(ConsumerFactory&lt;String,String&gt; consumerFactory)&#123;</span><br><span class="line">        ContainerProperties properties = new ContainerProperties(&quot;topicName&quot;);</span><br><span class="line">        KafkaMessageListenerContainer kafkaMessageListenerContainer = new KafkaMessageListenerContainer(consumerFactory, properties);</span><br><span class="line">        kafkaMessageListenerContainer.setupMessageListener(new MessageListener() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void onMessage(Object o) &#123;</span><br><span class="line">                if(o instanceof ConsumerRecord)&#123;</span><br><span class="line">                    ConsumerRecord&lt;String,String&gt; record =(ConsumerRecord)o;</span><br><span class="line">                    String str=record.value();</span><br><span class="line">                    System.out.println(str);</span><br><span class="line">                    /**</span><br><span class="line">                     ** 业务逻辑</span><br><span class="line">                     **/</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        return kafkaMessageListenerContainer;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><br><br>（三）手动控制+线程池任务<br><br><br>消费者配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerConfig;</span><br><span class="line">import org.apache.kafka.common.serialization.StringDeserializer;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.kafka.annotation.EnableKafka;</span><br><span class="line">import org.springframework.kafka.core.ConsumerFactory;</span><br><span class="line">import org.springframework.kafka.core.DefaultKafkaConsumerFactory;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 12:37</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Configuration  </span><br><span class="line">@EnableKafka  </span><br><span class="line">public class KafkaConsumerConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public ConsumerFactory consumerFactory()&#123;</span><br><span class="line">        Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span><br><span class="line">        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,&quot;200.100.49.249:9092&quot;);//kafka集群servers </span><br><span class="line">        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;true&quot;);</span><br><span class="line">        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, &quot;100&quot;);//consumer向zookeeper提交offset的频率</span><br><span class="line">        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, &quot;15000&quot;);//zookeeper会话超时时间。</span><br><span class="line">        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);//key的反序列化</span><br><span class="line">        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);//value反序列化</span><br><span class="line">        props.put(ConsumerConfig.GROUP_ID_CONFIG, &quot;frms&quot;); //用于标识consumer属于哪个consumer group</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, &quot;10240&quot;);//备份时每次fetch的最大值</span><br><span class="line">        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, &quot;6000&quot;);//fetch 超时时间</span><br><span class="line">        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);</span><br><span class="line">        return new DefaultKafkaConsumerFactory&lt;String, String&gt;(props);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>消费consume<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo.config;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerRecord;</span><br><span class="line">import org.apache.kafka.clients.consumer.ConsumerRecords;</span><br><span class="line">import org.apache.kafka.clients.consumer.KafkaConsumer;</span><br><span class="line">import org.slf4j.Logger;</span><br><span class="line">import org.slf4j.LoggerFactory;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.kafka.core.ConsumerFactory;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.Arrays;</span><br><span class="line">import java.util.List;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author ty</span><br><span class="line"> * @email shadan11@vip.qq.com</span><br><span class="line"> * @date 2018/4/16</span><br><span class="line"> * @time 13:32</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">public class KafkaUtil &#123;</span><br><span class="line">    private Logger logger = LoggerFactory.getLogger(KafkaUtil.class);</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    </span><br><span class="line">    @Autowired</span><br><span class="line">    private ConsumerFactory&lt;String,String&gt; consumerFactory;</span><br><span class="line"></span><br><span class="line">	private byte[] lock=new byte[0];</span><br><span class="line">    private long timeout=200;</span><br><span class="line">	</span><br><span class="line">	//消费指定topic</span><br><span class="line">    public List&lt;String&gt; consume(String topic)&#123;</span><br><span class="line">        long begin=System.currentTimeMillis();</span><br><span class="line">        KafkaConsumer&lt;String,String&gt; kafkaConsumer=createConsumer(topic); //获取一个kafka消费者</span><br><span class="line">        ConsumerRecords&lt;String, String&gt; consumerRecords = kafkaConsumer.poll(this.timeout);//从指定的topic拉消息</span><br><span class="line">        List&lt;String&gt; list = new ArrayList&lt;String&gt;(consumerRecords.count());</span><br><span class="line">        for (ConsumerRecord&lt;String, String&gt; record : consumerRecords) &#123;</span><br><span class="line">            list.add(record.value());</span><br><span class="line">        &#125;</span><br><span class="line">        logger.info(&quot;consumer kafka [topic: &#123;&#125;],cost time:[&#123;&#125;]ms&quot;,topic,System.currentTimeMillis()-begin);</span><br><span class="line">        return list;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private KafkaConsumer&lt;String,String&gt; createConsumer(String topics)&#123;</span><br><span class="line">        if(this.kafkaConsumerPool!=null)&#123;</span><br><span class="line">            if(this.kafkaConsumerPool.containsKey(topics))&#123;</span><br><span class="line">                return kafkaConsumerPool.get(topics);</span><br><span class="line">            &#125;else &#123;</span><br><span class="line">                synchronized (lock)&#123;</span><br><span class="line">                    if(this.kafkaConsumerPool.containsKey(topics))&#123;</span><br><span class="line">                        return kafkaConsumerPool.get(topics);</span><br><span class="line">                    &#125;</span><br><span class="line">                    KafkaConsumer&lt;String, String&gt; kafkaConsumer = (KafkaConsumer)this.consumerFactory.createConsumer();</span><br><span class="line">                    kafkaConsumer.subscribe(Arrays.asList(new String[] &#123; topics &#125;));//设置消费者订阅这个topic</span><br><span class="line">                    this.kafkaConsumerPool.put(topics, kafkaConsumer);</span><br><span class="line">                    return kafkaConsumer;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return null;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>线程池任务，消费指定topic<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">package com.example.demo;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">import com.example.demo.config.KafkaUtil;</span><br><span class="line">import org.springframework.boot.SpringApplication;</span><br><span class="line">import org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line"></span><br><span class="line">import java.util.List;</span><br><span class="line">import java.util.concurrent.Executors;</span><br><span class="line">import java.util.concurrent.ScheduledExecutorService;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">@SpringBootApplication</span><br><span class="line">public class SpringKafkaDemoApplication &#123;</span><br><span class="line"></span><br><span class="line">    //启动测试代码</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		ApplicationContext context=SpringApplication.run(SpringKafkaDemoApplication.class, args);</span><br><span class="line">		KafkaUtil kafkaUtil = context.getBean(KafkaUtil.class);</span><br><span class="line">		 ScheduledExecutorService scheduledService = Executors.newScheduledThreadPool(1);</span><br><span class="line">		scheduledService.scheduleWithFixedDelay(new Runnable() &#123;</span><br><span class="line">			@Override</span><br><span class="line">			public void run() &#123;</span><br><span class="line">				List&lt;String&gt; list=kafkaUtil.consume(&quot;testtt&quot;);</span><br><span class="line">				System.out.println(&quot;receive &quot;+list.size()+&quot; msgs&quot;);</span><br><span class="line">				for (String string:list ) &#123;</span><br><span class="line">					System.out.println(string);</span><br><span class="line">					/**</span><br><span class="line">                     ** 业务逻辑</span><br><span class="line">                     **/</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;, 0, 1000, TimeUnit.MILLISECONDS);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h4 id="ConcurrentMessageListenerContainer"><a href="#ConcurrentMessageListenerContainer" class="headerlink" title="ConcurrentMessageListenerContainer"></a>ConcurrentMessageListenerContainer</h4><p>ConcurrentMessageListenerContainer有三个属性<br><code>ConsumerFactory&lt;K, V&gt; consumerFactory;
+List&lt;KafkaMessageListenerContainer&lt;K, V&gt;&gt; containers = new ArrayList();
+int concurrency = 1;</code><br>ConcurrentMessageListenerContainer通过doStart()方法并使用consumerFactory创建concurrency个KafkaMessageListenerContainer，并调用其start()方法，实际上执行了KafkaMessageListenerContainer的doStart()方法。</p>
+<h4 id="KafkaMessageListenerContainer"><a href="#KafkaMessageListenerContainer" class="headerlink" title="KafkaMessageListenerContainer"></a>KafkaMessageListenerContainer</h4><p>其dostart()方法，有这样一段<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">SimpleAsyncTaskExecutor listenerExecutor;</span><br><span class="line">            if(containerProperties.getConsumerTaskExecutor() == null) &#123;</span><br><span class="line">                listenerExecutor = new SimpleAsyncTaskExecutor((this.getBeanName() == null?&quot;&quot;:this.getBeanName()) + &quot;-C-&quot;);</span><br><span class="line">                containerProperties.setConsumerTaskExecutor(listenerExecutor);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if(containerProperties.getListenerTaskExecutor() == null) &#123;</span><br><span class="line">                listenerExecutor = new SimpleAsyncTaskExecutor((this.getBeanName() == null?&quot;&quot;:this.getBeanName()) + &quot;-L-&quot;);</span><br><span class="line">                containerProperties.setListenerTaskExecutor(listenerExecutor);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            this.listenerConsumer = new KafkaMessageListenerContainer.ListenerConsumer(this.listener, this.acknowledgingMessageListener);</span><br><span class="line">            this.setRunning(true);</span><br><span class="line">            this.listenerConsumerFuture = containerProperties.getConsumerTaskExecutor().submitListenable(this.listenerConsumer);</span><br></pre></td></tr></table></figure></p>
+<p><code>this.listenerConsumerFuture = containerProperties.getConsumerTaskExecutor().submitListenable(this.listenerConsumer);</code><br>listenerConsumer实现了SchedulingAwareRunnable接口，而后者继承了Runnable<br>实际上执行了SimpleAsyncTaskExecutor.submitListenable，如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public ListenableFuture&lt;?&gt; submitListenable(Runnable task) &#123;</span><br><span class="line">    ListenableFutureTask future = new ListenableFutureTask(task, (Object)null);</span><br><span class="line">    this.execute(future, 9223372036854775807L);//进入execute </span><br><span class="line">    return future;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void execute(Runnable task, long startTimeout) &#123;</span><br><span class="line">    Assert.notNull(task, &quot;Runnable must not be null&quot;);</span><br><span class="line">    Runnable taskToUse = this.taskDecorator != null?this.taskDecorator.decorate(task):task;</span><br><span class="line">    if(this.isThrottleActive() &amp;&amp; startTimeout &gt; 0L) &#123;</span><br><span class="line">        this.concurrencyThrottle.beforeAccess();</span><br><span class="line">        this.doExecute(new SimpleAsyncTaskExecutor.ConcurrencyThrottlingRunnable(taskToUse));</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        this.doExecute(taskToUse); //进入doExecute</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected void doExecute(Runnable task) &#123;</span><br><span class="line">    Thread thread = this.threadFactory != null?this.threadFactory.newThread(task):this.createThread(task);</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后使用Runnable来创建一个线程，并启动，那么就会执行Runnable中的run方法。<br>而ListenerConsumer就是这个Runnable，来看一下其run方法的实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">    if(this.theListener instanceof ConsumerSeekAware) &#123;</span><br><span class="line">        ((ConsumerSeekAware)this.theListener).registerSeekCallback(this);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    this.count = 0;</span><br><span class="line">    this.last = System.currentTimeMillis();</span><br><span class="line">    if(KafkaMessageListenerContainer.this.isRunning() &amp;&amp; this.definedPartitions != null) &#123;</span><br><span class="line">        this.initPartitionsIfNeeded();</span><br><span class="line">        if(!this.autoCommit) &#123;</span><br><span class="line">            this.startInvoker();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    long lastReceive = System.currentTimeMillis();</span><br><span class="line">    long lastAlertAt = lastReceive;</span><br><span class="line"></span><br><span class="line">    while(KafkaMessageListenerContainer.this.isRunning()) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            if(!this.autoCommit) &#123;</span><br><span class="line">                this.processCommits();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            this.processSeeks();</span><br><span class="line">            if(this.logger.isTraceEnabled()) &#123;</span><br><span class="line">                this.logger.trace(&quot;Polling (paused=&quot; + this.paused + &quot;)...&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            ConsumerRecords e = this.consumer.poll(this.containerProperties.getPollTimeout());</span><br><span class="line">            if(e != null &amp;&amp; this.logger.isDebugEnabled()) &#123;</span><br><span class="line">                this.logger.debug(&quot;Received: &quot; + e.count() + &quot; records&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if(e != null &amp;&amp; e.count() &gt; 0) &#123;</span><br><span class="line">                if(this.containerProperties.getIdleEventInterval() != null) &#123;</span><br><span class="line">                    lastReceive = System.currentTimeMillis();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                if(this.autoCommit) &#123;</span><br><span class="line">                    this.invokeListener(e); //这里最后调用了MessageListener的onMessage方法</span><br><span class="line">                &#125; else if(this.sendToListener(e) &amp;&amp; this.assignedPartitions != null) &#123;</span><br><span class="line">                    this.consumer.pause(this.assignedPartitions);</span><br><span class="line">                    this.paused = true;</span><br><span class="line">                    this.unsent = e;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else if(this.containerProperties.getIdleEventInterval() != null) &#123;</span><br><span class="line">                long now = System.currentTimeMillis();</span><br><span class="line">                if(now &gt; lastReceive + this.containerProperties.getIdleEventInterval().longValue() &amp;&amp; now &gt; lastAlertAt + this.containerProperties.getIdleEventInterval().longValue()) &#123;</span><br><span class="line">                    KafkaMessageListenerContainer.this.publishIdleContainerEvent(now - lastReceive);</span><br><span class="line">                    lastAlertAt = now;</span><br><span class="line">                    if(this.theListener instanceof ConsumerSeekAware) &#123;</span><br><span class="line">                        this.seekPartitions(KafkaMessageListenerContainer.this.getAssignedPartitions(), true);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            this.unsent = this.checkPause(this.unsent);</span><br><span class="line">        &#125; catch (WakeupException var9) &#123;</span><br><span class="line">            this.unsent = this.checkPause(this.unsent);</span><br><span class="line">        &#125; catch (Exception var10) &#123;</span><br><span class="line">            if(this.containerProperties.getGenericErrorHandler() != null) &#123;</span><br><span class="line">                this.containerProperties.getGenericErrorHandler().handle(var10, (Object)null);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                this.logger.error(&quot;Container exception&quot;, var10);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if(this.listenerInvokerFuture != null) &#123;</span><br><span class="line">        this.stopInvoker();</span><br><span class="line">        this.commitManualAcks();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        this.consumer.unsubscribe();</span><br><span class="line">    &#125; catch (WakeupException var8) &#123;</span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    this.consumer.close();</span><br><span class="line">    if(this.logger.isInfoEnabled()) &#123;</span><br><span class="line">        this.logger.info(&quot;Consumer stopped&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/消息中间件/" rel="tag"># 消息中间件</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/15/Kafka（一）/" rel="next" title="kafka（一）">
+                <i class="fa fa-chevron-left"></i> kafka（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/mana.jpg"
+                alt="taoyong" />
+            
+              <p class="site-author-name" itemprop="name">taoyong</p>
+              <p class="site-description motion-element" itemprop="description">無限大な夢のあとの</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka（二）"><span class="nav-number">1.</span> <span class="nav-text">Kafka（二）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kafka"><span class="nav-number">1.2.</span> <span class="nav-text">kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#生产者"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">生产者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消费者"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">消费者</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">1.3.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ConcurrentMessageListenerContainer"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">ConcurrentMessageListenerContainer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#KafkaMessageListenerContainer"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">KafkaMessageListenerContainer</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-bell"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">啦啦啦拉比克</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
